@@ -11,6 +11,7 @@ class AudioAnalyzer:
 
     def __init__(self):
         self.frequencies_index_ratio = 0
+        self.map_file = None
         self.time_index_ratio = 0
         self.spectrogram = None
         self.frequencies = None
@@ -18,8 +19,10 @@ class AudioAnalyzer:
 
     def load(self, file_name):
 
-        time_series, sample_rate = librosa.load(file_name)
+        self.map_file = file_name.split('.')[0] + '.txt'
 
+        time_series, sample_rate = librosa.load(file_name)
+        
         stft = np.abs(librosa.stft(time_series, hop_length=512, n_fft=2048 * 4))
 
         self.spectrogram = librosa.amplitude_to_db(stft, ref=np.max)
@@ -122,8 +125,10 @@ class AudioAnalyzer:
                 {'occurs_at': int((bass['start'] * 20) / 1000), 'start': last_position, 'end': position, 'length': forward_to})
             last_position = position
 
+        f = open(self.map_file,'w')
         for pos in positions:
-            print(f"occurs_at:{pos['occurs_at']}, start:{pos['start']}, end:{pos['end']}, length:{pos['length']}")
+            f.write(f"occurs_at:{pos['occurs_at']}, start:{pos['start']}, end:{pos['end']}, length:{pos['length']}\n")
+        f.close()
 
 
 
